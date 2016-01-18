@@ -85,13 +85,30 @@
     var type = 0;
     var latitude = '';
     var longitude = '';
+    var workbook = '';
+    var worksheets = '';
+    var length = '';
 
     var placeholderDiv = document.getElementById('tableau');
-    var url = "https://public.tableau.com/views/MapboxTest_0/Dashboard1?:embed=y&:display_count=yes&:showTabs=y";
+    var url = "https://public.tableau.com/views/MapboxTest_0/QuakeDashboard?:embed=y&:display_count=yes&:showTabs=y";
     var options = {
       hideTabs: true,
       onFirstInteractive: function() {
         // The viz is now ready and can be safely used.
+        workbook = viz.getWorkbook();
+        active = workbook.getActiveSheet();
+        worksheets = active.getWorksheets();
+        length = worksheets.length;
+        worksheets[2].applyRangeFilterAsync(
+          "Latitude", {
+            min: south,
+            max: north
+          }, tableau.FilterUpdateType.REPLACE);
+        worksheets[2].applyRangeFilterAsync(
+          "Longitude", {
+            min: west,
+            max: east
+          }, tableau.FilterUpdateType.REPLACE);
       }
     };
     var viz = new tableau.Viz(placeholderDiv, url, options);
@@ -102,6 +119,11 @@
       style: 'mapbox://styles/mapbox/streets-v8', //stylesheet location
       center: [0, 0], // starting position
       zoom: 3 // starting zoom
+    });
+
+    var url = 'https://rawgit.com/cmtoomey/TableauMapboxEarthquake/master/Earthquakes.geojson';
+    var source = new mapboxgl.GeoJSONSource({
+      data: url
     });
 
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -127,6 +149,42 @@
       document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
     });
 
+    map.on('style.load', function() {
+      map.addSource('quake', source);
+      map.addLayer({
+        "id": "quake",
+        "interactive": "true",
+        "source": "quake",
+        "type": "circle",
+        "paint": {
+          "circle-color": "#A5ACAF",
+          "circle-radius": "7",
+          "circle-opacity": ".85",
+          "circle-blur": ".35"
+        }
+      });
+    });
+
+    map.on('click', function(e) {
+      // Use featuresAt to get features within a given radius of the click event
+      // Use layer option to avoid getting results from other layers
+      map.featuresAt(e.point, {
+        layer: 'quake',
+        radius: 10,
+        includeGeometry: true
+      }, function(err, features) {
+        if (err) throw err;
+        // if there are features within the given radius of the click event,
+        // fly to the location of the click event
+        if (features.length) {
+          // Get coordinates from the symbol and center the map on those coordinates
+          map.flyTo({
+            center: features[0].geometry.coordinates
+          });
+        }
+      });
+    });
+
     map.on('moveend', function() {
       n = n + 1;
       bounds = map.getBounds();
@@ -134,12 +192,25 @@
       south = bounds.getSouth();
       east = bounds.getEast();
       west = bounds.getWest();
+      for (var i = 0; i < length; i++) {
+        worksheets[i].applyRangeFilterAsync(
+          "Latitude", {
+            min: south,
+            max: north
+          }, tableau.FilterUpdateType.REPLACE);
+        worksheets[i].applyRangeFilterAsync(
+          "Longitude", {
+            min: west,
+            max: east
+          }, tableau.FilterUpdateType.REPLACE);
+      };
       document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
     });
 
     $("input[name='Speed']").on("change", function() {
       type = this.value;
       if (type == 0) {
+        workbook.changeParameterValueAsync("Sheet Toggle", 0);
         document.getElementById('toggle').style.color = '#000000';
         map.setPaintProperty('water', 'fill-color', '#8ccbf7');
         map.setPaintProperty('background', 'background-color', '#ede9d9');
@@ -154,6 +225,7 @@
           document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
         });
       } else {
+        workbook.changeParameterValueAsync("Sheet Toggle", 1);
         document.getElementById('toggle').style.color = '#ffffff';
         map.setPaintProperty('water', 'fill-color', '#002244');
         map.setPaintProperty('background', 'background-color', '#69BE28');
@@ -166,6 +238,18 @@
           east = bounds.getEast();
           west = bounds.getWest();
           document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
+          // for (var i = 0; i < length; i++) {
+          //   worksheets[i].applyRangeFilterAsync(
+          //     "Latitude", {
+          //       min: south,
+          //       max: north
+          //     }, tableau.FilterUpdateType.REPLACE);
+          //   worksheets[i].applyRangeFilterAsync(
+          //     "Longitude", {
+          //       min: west,
+          //       max: east
+          //     }, tableau.FilterUpdateType.REPLACE);
+          // };
         });
       }
     });
