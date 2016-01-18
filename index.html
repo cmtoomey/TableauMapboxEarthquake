@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title></title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300,500' rel='stylesheet' type='text/css'>
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css' rel='stylesheet' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v0.0.0/mapbox-gl-geocoder.js'></script>
+  <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v0.0.0/mapbox-gl-geocoder.css' type='text/css' />
+  <script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #tableau {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      /*background-color: blue*/
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      left: 50%;
+      height: 100%
+    }
+
+    pre.ui-coordinates {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 10px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 300;
+      line-height: 18px;
+      border-radius: 3px;
+      z-index: 1;
+    }
+
+    form {
+      position: fixed;
+      bottom: 5px;
+      z-index: 1;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id='tableau'></div>
+  <div id='map'>
+    <pre id='coordinates' class='ui-coordinates'></pre>
+    <form id='toggle'>
+      <input type="radio" name="Speed" value=0 checked="checked"> REGULAR
+      <br>
+      <input type="radio" name="Speed" value=1> BEAST MODE
+      <br>
+    </form>
+  </div>
+  <script>
+    var lat = '';
+    var long = '';
+    var north = '';
+    var south = '';
+    var east = '';
+    var west = '';
+    var coordinates = document.getElementById('coordinates');
+    var n = 1;
+    var type = 0;
+    var latitude = '';
+    var longitude = '';
+
+    var placeholderDiv = document.getElementById('tableau');
+    var url = "https://public.tableau.com/views/MapboxTest_0/Dashboard1?:embed=y&:display_count=yes&:showTabs=y";
+    var options = {
+      hideTabs: true,
+      onFirstInteractive: function() {
+        // The viz is now ready and can be safely used.
+      }
+    };
+    var viz = new tableau.Viz(placeholderDiv, url, options);
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoiY210b29tZXkiLCJhIjoiUWQyeTJqMCJ9.MFgvZXmgNt6WzrzP9kJgUA';
+    var map = new mapboxgl.Map({
+      container: 'map', // container id
+      style: 'mapbox://styles/mapbox/streets-v8', //stylesheet location
+      center: [0, 0], // starting position
+      zoom: 3 // starting zoom
+    });
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+      console.log(position.coords);
+      latitude = position.coords.latitude;
+      console.log(latitude);
+      longitude = position.coords.longitude;
+      console.log(longitude);
+      map.flyTo({
+        center: [longitude, latitude],
+        zoom: 8
+      });
+    });
+
+    map.addControl(new mapboxgl.Geocoder());
+
+    map.on('load', function() {
+      bounds = map.getBounds();
+      north = bounds.getNorth();
+      south = bounds.getSouth();
+      east = bounds.getEast();
+      west = bounds.getWest();
+      document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
+    });
+
+    map.on('moveend', function() {
+      n = n + 1;
+      bounds = map.getBounds();
+      north = bounds.getNorth();
+      south = bounds.getSouth();
+      east = bounds.getEast();
+      west = bounds.getWest();
+      document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
+    });
+
+    $("input[name='Speed']").on("change", function() {
+      type = this.value;
+      if (type == 0) {
+        document.getElementById('toggle').style.color = '#000000';
+        map.setPaintProperty('water', 'fill-color', '#8ccbf7');
+        map.setPaintProperty('background', 'background-color', '#ede9d9');
+        map.setPaintProperty('admin-3-4-boundaries', 'line-color', '#c3bfcc');
+        map.on('moveend', function() {
+          n = n + 1;
+          bounds = map.getBounds();
+          north = bounds.getNorth();
+          south = bounds.getSouth();
+          east = bounds.getEast();
+          west = bounds.getWest();
+          document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
+        });
+      } else {
+        document.getElementById('toggle').style.color = '#ffffff';
+        map.setPaintProperty('water', 'fill-color', '#002244');
+        map.setPaintProperty('background', 'background-color', '#69BE28');
+        map.setPaintProperty('admin-3-4-boundaries', 'line-color', '#A5ACAF');
+        map.on('move', function() {
+          n = n + 1;
+          bounds = map.getBounds();
+          north = bounds.getNorth();
+          south = bounds.getSouth();
+          east = bounds.getEast();
+          west = bounds.getWest();
+          document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>
