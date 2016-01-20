@@ -15,7 +15,7 @@
   <datasources>
     <datasource hasconnection='false' inline='true' name='Parameters' version='9.2'>
       <aliases enabled='yes' />
-      <column caption='Sheet Toggle' datatype='integer' datatype-customized='true' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
+      <column caption='Sheet Toggle' datatype='integer' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
         <calculation class='tableau' formula='0' />
         <members>
           <member value='0' />
@@ -306,6 +306,7 @@
       <column aggregation='Sum' caption='Sheet Toggle' datatype='integer' name='[Calculation_2956472460138913803]' role='dimension' type='ordinal'>
         <calculation class='tableau' formula='[Parameters].[Parameter 1]' />
       </column>
+      <column datatype='datetime' name='[Date Time]' role='dimension' type='ordinal' />
       <column datatype='string' name='[Magnitude Calculation (group)]' role='dimension' type='nominal'>
         <calculation class='categorical-bin' column='[Magnitude Calculation]'>
           <bin value='%null%'>
@@ -345,13 +346,20 @@
       <column aggregation='Avg' caption='Longitude' datatype='real' name='[longitude]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
       <column caption='Place' datatype='string' name='[place]' role='dimension' type='nominal' />
       <column-instance column='[Magnitude Calculation]' derivation='None' name='[none:Magnitude Calculation:nk]' pivot='key' type='nominal' />
+      <column-instance column='[Date Time]' derivation='Month-Trunc' name='[tmn:Date Time:ok]' pivot='key' type='ordinal' />
       <group caption='Action (Contributor Corr)' hidden='true' name='[Action (Contributor Corr)]' name-style='unqualified' user:auto-column='sheet_link'>
         <groupfilter function='crossjoin'>
           <groupfilter function='level-members' level='[Calculation_2956472460119048199]' />
         </groupfilter>
       </group>
+      <group caption='Action (MONTH(Date Time),Magnitude Calculation (group))' hidden='true' name='[Action (MONTH(Date Time),Magnitude Calculation (group))]' name-style='unqualified' user:auto-column='sheet_link'>
+        <groupfilter function='crossjoin'>
+          <groupfilter function='level-members' level='[tmn:Date Time:ok]' />
+          <groupfilter function='level-members' level='[Magnitude Calculation (group)]' />
+        </groupfilter>
+      </group>
       <extract count='-1' enabled='true' units='records'>
-        <connection class='dataengine' dbname='/Users/chris.toomey/Desktop/TableauMapboxEarthquake/query (Mag6PlusEarthquakes_1900-2013).tde' schema='Extract' tablename='Extract' update-time='01/18/2016 10:59:24 PM'>
+        <connection class='dataengine' dbname='/Users/chris.toomey/Documents/Projects/TableauMapboxEarthquake/query (Mag6PlusEarthquakes_1900-2013).tde' schema='Extract' tablename='Extract' update-time='01/18/2016 10:59:24 PM'>
           <relation name='Extract' table='[Extract].[Extract]' type='table' />
           <calculations>
             <calculation column='[Calculation_2956472460119048199]' formula='upper(LEFT([Contributor],1))+&#10;right([Contributor],LEN([Contributor])-1)' />
@@ -943,7 +951,7 @@
           </groupfilter>
         </filter>
       </extract>
-      <layout dim-ordering='alphabetic' dim-percentage='0.46732' measure-ordering='alphabetic' measure-percentage='0.323529' parameter-percentage='0.20915' show-structure='true' user-set-layout='true' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.468954' measure-ordering='alphabetic' measure-percentage='0.323529' parameter-percentage='0.207516' show-structure='true' user-set-layout='true' />
       <style>
         <style-rule element='mark'>
           <encoding attr='color' field='[none:Magnitude Calculation:nk]' type='palette'>
@@ -1001,7 +1009,7 @@
         <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
       </semantic-values>
       <datasource-dependencies datasource='Parameters'>
-        <column caption='Sheet Toggle' datatype='integer' datatype-customized='true' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
+        <column caption='Sheet Toggle' datatype='integer' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
           <calculation class='tableau' formula='0' />
         </column>
       </datasource-dependencies>
@@ -1053,19 +1061,11 @@
     </shared-view>
   </shared-views>
   <actions>
-    <action caption='Time Series Filter' name='[Action1]'>
-      <activation auto-clear='true' type='on-select' />
+    <action caption='Show these Quakes' name='[Action1]'>
+      <activation auto-clear='true' />
       <source dashboard='Quake Dashboard' type='sheet' worksheet='12M Magnitude' />
       <command command='tsc:tsl-filter'>
-        <param name='special-fields' value='all' />
-        <param name='target' value='Quake Dashboard' />
-      </command>
-    </action>
-    <action caption='Show Details' name='[Action2]'>
-      <activation auto-clear='true' />
-      <source dashboard='Quake Dashboard' type='sheet' worksheet='MagnitudeContributor' />
-      <command command='tsc:tsl-filter'>
-        <param name='exclude' value='12M Magnitude,MagnitudeContributor,Total Earthquakes' />
+        <param name='exclude' value='12M Magnitude,Total Earthquakes' />
         <param name='on-empty' value='none' />
         <param name='special-fields' value='all' />
         <param name='target' value='Quake Dashboard' />
@@ -1081,7 +1081,7 @@
             <datasource name='Parameters' />
           </datasources>
           <datasource-dependencies datasource='Parameters'>
-            <column caption='Sheet Toggle' datatype='integer' datatype-customized='true' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
+            <column caption='Sheet Toggle' datatype='integer' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
               <calculation class='tableau' formula='0' />
             </column>
           </datasource-dependencies>
@@ -1207,7 +1207,7 @@
             <datasource name='Parameters' />
           </datasources>
           <datasource-dependencies datasource='Parameters'>
-            <column caption='Sheet Toggle' datatype='integer' datatype-customized='true' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
+            <column caption='Sheet Toggle' datatype='integer' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
               <calculation class='tableau' formula='0' />
             </column>
           </datasource-dependencies>
@@ -1318,19 +1318,16 @@
             <datasource name='Parameters' />
           </datasources>
           <datasource-dependencies datasource='Parameters'>
-            <column caption='Sheet Toggle' datatype='integer' datatype-customized='true' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
+            <column caption='Sheet Toggle' datatype='integer' name='[Parameter 1]' param-domain-type='list' role='measure' type='quantitative' value='0'>
               <calculation class='tableau' formula='0' />
             </column>
           </datasource-dependencies>
           <datasource-dependencies datasource='excel-direct.19op8i0182uoj417tirhv1259187'>
-            <column caption='Contributor Corr' datatype='string' name='[Calculation_2956472460119048199]' role='dimension' type='nominal'>
-              <calculation class='tableau' formula='upper(LEFT([Contributor],1))+&#10;right([Contributor],LEN([Contributor])-1)' />
-            </column>
             <column aggregation='Sum' caption='Sheet Toggle' datatype='integer' name='[Calculation_2956472460138913803]' role='dimension' type='ordinal'>
               <calculation class='tableau' formula='[Parameters].[Parameter 1]' />
             </column>
-            <column datatype='string' name='[Contributor]' role='dimension' type='nominal' />
             <column datatype='real' name='[Data Fit]' role='measure' type='quantitative' />
+            <column datatype='datetime' name='[Date Time]' role='dimension' type='ordinal' />
             <column datatype='string' name='[Magnitude Calculation (group)]' role='dimension' type='nominal'>
               <calculation class='categorical-bin' column='[Magnitude Calculation]'>
                 <bin value='%null%'>
@@ -1369,6 +1366,7 @@
             <column-instance column='[Data Fit]' derivation='Sum' name='[sum:Data Fit:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Magnitude]' derivation='Sum' name='[sum:Magnitude:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Reliability]' derivation='Sum' name='[sum:Reliability:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Date Time]' derivation='Month-Trunc' name='[tmn:Date Time:ok]' pivot='key' type='ordinal' />
           </datasource-dependencies>
           <filter class='categorical' column='[excel-direct.19op8i0182uoj417tirhv1259187].[:Measure Names]'>
             <groupfilter function='union' user:op='manual'>
@@ -1384,8 +1382,11 @@
               <bucket>&quot;[excel-direct.19op8i0182uoj417tirhv1259187].[sum:Reliability:qk]&quot;</bucket>
             </dictionary>
           </sort>
-          <filter class='categorical' column='[excel-direct.19op8i0182uoj417tirhv1259187].[Action (Contributor Corr)]'>
-            <groupfilter function='empty-level' member='[Calculation_2956472460119048199]' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          <filter class='categorical' column='[excel-direct.19op8i0182uoj417tirhv1259187].[Action (MONTH(Date Time),Magnitude Calculation (group))]'>
+            <groupfilter function='crossjoin' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='empty-level' member='[tmn:Date Time:ok]' />
+              <groupfilter function='empty-level' member='[Magnitude Calculation (group)]' />
+            </groupfilter>
           </filter>
           <filter class='categorical' column='[excel-direct.19op8i0182uoj417tirhv1259187].[none:Calculation_2956472460138913803:ok]'>
             <groupfilter function='member' level='[none:Calculation_2956472460138913803:ok]' member='1' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
@@ -1394,7 +1395,7 @@
             <column>[excel-direct.19op8i0182uoj417tirhv1259187].[Magnitude Calculation (group)]</column>
             <column>[excel-direct.19op8i0182uoj417tirhv1259187].[:Measure Names]</column>
             <column>[excel-direct.19op8i0182uoj417tirhv1259187].[none:Calculation_2956472460138913803:ok]</column>
-            <column>[excel-direct.19op8i0182uoj417tirhv1259187].[Action (Contributor Corr)]</column>
+            <column>[excel-direct.19op8i0182uoj417tirhv1259187].[Action (MONTH(Date Time),Magnitude Calculation (group))]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -1586,17 +1587,14 @@
                   <zone h='5234' id='3' name='12M Magnitude' w='1053' x='0' y='94215'>
                     <layout-cache has-max-size-h='true' has-max-size-w='true' maxheight='1' maxwidth='1' minheight='1' minwidth='1' type-h='scalable' type-w='scalable' />
                   </zone>
-                  <zone h='5234' id='9' param='vert' type='layout-flow' w='3077' x='1053' y='94215'>
-                    <zone h='1102' id='6' name='MagnitudeContributor' w='3077' x='1053' y='94215'>
-                      <layout-cache has-max-size-w='true' maxwidth='1' minwidth='1' type-h='cell' type-w='scalable' />
-                    </zone>
+                  <zone h='5234' id='16' name='Quake Details' w='648' x='1053' y='94215'>
+                    <layout-cache fixed-size-h='1' type-h='fixed' type-w='cell' />
                   </zone>
                 </zone>
               </zone>
             </zone>
           </zone>
         </zone>
-        <zone h='40634' id='16' name='Quake Details' w='97976' x='810' y='58540' />
       </zones>
     </dashboard>
   </dashboards>
@@ -1750,39 +1748,14 @@
             </color-one-way>
           </highlight>
         </viewpoint>
-        <viewpoint name='MagnitudeContributor'>
-          <zoom type='entire-view' />
-        </viewpoint>
         <viewpoint name='Quake Details'>
           <zoom type='fit-width' />
         </viewpoint>
         <viewpoint name='Total Earthquakes'>
           <zoom type='entire-view' />
-          <selection-collection>
-            <tuple-selection>
-              <tuple-reference>
-                <tuple-descriptor>
-                  <pane-descriptor>
-                    <x-fields>
-                      <field>[excel-direct.19op8i0182uoj417tirhv1259187].[:Measure Names]</field>
-                    </x-fields>
-                    <y-fields />
-                  </pane-descriptor>
-                  <columns>
-                    <field>[excel-direct.19op8i0182uoj417tirhv1259187].[:Measure Names]</field>
-                    <field>[excel-direct.19op8i0182uoj417tirhv1259187].[Multiple Values]</field>
-                  </columns>
-                </tuple-descriptor>
-                <tuple>
-                  <value>&quot;[excel-direct.19op8i0182uoj417tirhv1259187].[sum:Number of Records:qk]&quot;</value>
-                  <value>7296.0</value>
-                </tuple>
-              </tuple-reference>
-            </tuple-selection>
-          </selection-collection>
         </viewpoint>
       </viewpoints>
-      <active id='16' />
+      <active id='3' />
     </window>
   </windows>
   <thumbnails>
@@ -3072,106 +3045,106 @@
     </thumbnail>
     <thumbnail height='384' name='Quake Dashboard' width='384'>
       iVBORw0KGgoAAAANSUhEUgAAAYAAAAGACAYAAACkx7W/AAAACXBIWXMAAAsTAAALEwEAmpwY
-      AAAYJklEQVR4nO3deXRU9d3H8c+dmZB9ISRAgIQQYoDgEkBBlM0WsVgVUQqKT7UqilVbj9XW
-      xxas0tZW29qCxZ26gIpWcUE2CYtREISwCRhCICQQwpI9ISHLzH3+ACIotpw+Sozf9+sczmHu
-      3PnN7w6Hed87N7njuK7rCgBgjqelJwAAaBkEAACMIgAAYBQBAACjCAAAGEUAAMAo34k3XS1f
-      NE/5ew8et8zR1eOvV1TwF1vhqqa6RmEREfI4zkkHn//OHA2+5HJFhgQ1L1u+6L0Txk9I7qkf
-      XDTwP0607lCNfCFhCvJ6tGblMrVLOlMpXeL/4+NOVXVZsT7M3q5LLx7ytY0JAN9mXzoCSE5J
-      U0ZGhnLWr1L7xG7KyDhHwV7JdV0FAgEd+7UB1w3osT/+Tocajyw7/v5jv1nwyccfqq6x6YTx
-      N6z5WGFxicrIyFBGRoa6J3c5Ot6J4+vomMf+zH5mmvKKy+S6rnK2rNe+g+XN9x1z4hzc5mVf
-      9ffjn6+2pkyfrNt48sccP6+TzRUAWqEvHAE4Sj4jTcmSFrweqh69zlRq5zg11tXomX88qV37
-      yuS0CdNtd9yp1Zn/0q69+/XEP6brx+PH6fWZ/1TFoXrV1dVp5FXjNWzAOV/5pN3T0tWnR6fm
-      21vXrtBr7y6U4zjyO210972/VEywX1Onz5CnoVJ7Smp1uOqA8v/5tMZcd6MkRyuXztfCN0vU
-      5A3VPfferXCnQVMf+5vK6xqVkpqqyKg4XfujK/TiM4/rkrE3KqFtpN6dPUNpA66QU7lTr741
-      T47HoybXp7vuufeE+WUtnqvi+giNvXSw5rzygtbnFEgej8Zce6N6JcVo+tTHVVpbL8fj0423
-      3q7UxA5f378IAJwmp3QOYNmCOaqPTNLv/vB7XT7kHD0/c7ZGj7tRXRPaa+Jtt6mxukQ9+w3R
-      5MmT9bNb/0fvv7/434735qxn9cgjj+jRx56RX1JB0V7dfPvdmjRpsnp1jlT25s8k16+8nA3q
-      ft4IPfyHh9SnRzeNvWGCzuyWIMmVL6q9HnjoIZ3VJUyrsnO0ZN4chXXprd///nfqGBbQntJq
-      SVJxcZEamwKSpJL9+1Rb16SCPUX6yW0/16RJk3RW11it3bileW4bPsrUktW5umLEEH26ark2
-      FdXpwSlTdNeE8Zo18yVt3bBO5d5YTZkyRTeMG6WSktL/7pUHgBbm+8+ruNq1I18Zw8bJ5/Xq
-      nL4Zeu7dlfJ4PXIcR16fT/EdEjR33gJ9/NFSRQb71BQ4+TmBY4ZfNkZnp7SXHK88khITO+uf
-      T/5NoRHRKi/eraHpF0qSgkOjNHTQuQoK8shxJK/XK4/nyNjn9usrn9er2LZtVd/QpKL8fPUd
-      cb18Xq969+ihbZ8UfuXzJyV20YtPT1NoRLQq9u3RBd37SZKKd+Xo1f3b1LHXBQpt41X+jjyV
-      7MnXo3/6oxTwS4F6tU9Ok/vufN1776+UmJSsy0aNPrVXGgC+ZU4hAFJ4VIQqqyslSTWVlQoP
-      D9ext3hHUtb778qNTNIDPx+j0t3b9dgLb/3b8aJj2io+/ugJXLdRL8x4STfePVnp3Tvpzeen
-      Hx1V8jg++TwnP0jxOCcuDw4NVXllhSSpuqamebkjqSkQkOsGVFFZLblNevGfL+naO+7T2WmJ
-      envm08e9GqH65QOT9Y8/TVHenhEKjQhXv0EX6eZrrlDA36DPtu1UWHCw7rzn1/KpURvWfKQZ
-      L72mRx+851ReRgD4VjmFADgafNFw/XX6C/I1VOiTD5fo0kvHyXEceVy/MhcvkRPwaXd+rlat
-      /EjLlyzSobqQ5kd/8TSpK+n9997Qxo/CJUlxHZMVGxOu7Ow1KtzapKWr12t4Yr8vPTY8IlLL
-      F2fKM/SCk87ygsFDNG3GLDl1+5WV+b7i0gZIks7olqQ3Xntdye2CtGXnfg1zPIptG6F169Zo
-      3/a1WrxyjYbF95YkJXTpqriYaI256jK99q83dft1I7Xw4T/rrfAgle3JUZk/Vpeen6wZsxdp
-      5MiLVVi4W3HxX99PIgHA6eR81dVAd+bmqGNSd4WFBElytXf3LuXm7VJCUorSUpLkOI7KDxZr
-      45YcnZGeoYq9O3Ww8pB6pfdWRXm5eqSlKi93m5JSUtXG520et2BHrsqra5tvh0bGKLF9jLLX
-      b1BwWIxSkjqqwQ1SQny0tuXu1Bk90uR1pPq6aq1du06xCcmKDnEVFtVeMVFhKtlfpIAvQu1j
-      o5Sf95kKi0sVqTot2XpQv7ztOjU11mvtmjXyhUYpIT5aETEd1UaHlb1ug3yhkTojubMO+72K
-      jw5RYXGZUlOS5Aaa9FnOdp3Ro4fqKkq0/tMtCo9up4yzz5TX46ioYKfy8gsVHhWrjHPOVNBx
-      2wcArcVXBqA1K/j0E81bv0e3X39VS08FAL61vpMBcAMB+QOufOyZA8BX+k4GAADwn3EtIAAw
-      igAAgFEEAACMIgAAYBQBAACjCAAAGEUADHjz5Rm6/9eTlV9cJkkq21egSZOnqLS64f81bqCh
-      SlMenKSV2du+jmme1KdrPtDP77hdD/7piRMuDdJ4uFazZjyln068VRNumagnn5upQ4cb/6vn
-      yJz3L0177tWvZ8JAK0IADCjdv087tufohZmzFXClpobD2rVrlxr9AQUCAfkDRy6X7bqu/H6/
-      XOnIcn9AbiCgutpa+QOuJFcN9fWqbzj6Rhvwq2DXLlVUHlJ5aamqaw6d8Cbd1Nio2ro6Bb44
-      vhtQXV3dl+bp9zeptrZWfr//yPBuQO/Pn6e2ST10203jmtdzXVdvvPSM5i9frUuvHKtrrv6h
-      Vn+wQM/NmtP8ZT3HnvPIdvib5xXw+1VbW6v6hobmL/QpLy9R0b4DJ8wxEHBPmFPT0TlJan5N
-      GhoaxW/RoDU7pauBovWLjIzQZ2s/0IoNw9Wj3efL582ZqS27G3Xf3RO0NXuFnnt5rv7wl0eU
-      9fYsrcorU1unRhs+y1Nq7/4a0qebXnn9LQU8bXTTT3+m89LaS4606L1XNevZ3fIFR+hn99yv
-      885M0db1qzXjxVmqqDmsTl1Tdeedd6ht0CH9ctIfddZZPZVbVKtHf/v5VVSL8rfpqaef1e59
-      JYpPSNJtt9+hA0V5Wp+zW96QEs2cHa17f/4TSVJjXYUys1ZpwEWjddnI4XLkqnxfod5YvEg/
-      Hj9ac2dOV31Ism69YbRWZL6nxas+0+RJ9yl/S7aef+kVHSirkC+ojYb+4EpdO+qS5jm4rqvs
-      FYv18ttLdftdv1C4v0JPPf2s9hwoU0y7Dpp4+51Kbh+uJx6fpi25u+RrE6IfjBqnUZcM0Vd8
-      KyrwrcYRgBEXjrhUXTtE6+UXn1ftcV/TWVVZrpKSI5fRbqirVXHxfrmSqisrtHXdKsV1z9DY
-      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
+      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
-      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
+      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
@@ -3183,10 +3156,11 @@
       MIoAAIBRBAAAjCIAAGAUAQAAowgAABhFAADAKAIAAEYRAAAwigAAgFEEAACMIgAAYBQBAACj
       CAAAGEUAAMAoAgAARhEAADCKAACAUQQAAIwiAABgFAEAAKMIAAAYRQAAwCgCAABGEQAAMIoA
       AIBRBAAAjCIAAGAUAQAAowgAABhFAADAKAIAAEYRAAAwigAAgFEEAACMIgAAYBQBAACjCAAA
-      GEUAAMAoAgAARhEAADCKAACAUQQAAIwiAABgFAEAAKMIAAAYRQAAwCgCAABGOa7ruscvePPd
-      eaqpb2qp+QBAi6qtqlRksEeRkZEtPZVv3JcCAACwgY+AAMAoAgAARhEAADCKAACAUQQAAIwi
-      AABgFAEAAKMIAAAYRQAAwCgCAABGEQAAMIoAAIBRBAAAjCIAAGAUAQAAowgAABhFAADAKAIA
-      AEYRAAAwigAAgFEEAACMIgAAYBQBAACjCAAAGPV/3HE/H3MHlrsAAAAASUVORK5CYII=
+      GEUAAMAoAgAARhEAADCKAACAUQQAAIwiAABgFAEAAKMIAAAYRQAAwCgCAABGEQAAMIoAAIBR
+      juu67rEL5s6dq8bGxuaaDwA0q4qKCnk8HkVGRjb3VL533wgAAMAGPgICAKMIAAAYRQAAwCgC
+      AABGEQAAMIoAAIBRBAAAjCIAAGAUAQAAowgAABhFAADAKAIAAEYRAAAwigAAgFEEAACMIgAA
+      YBQBAACjCAAAGEUAAMAoAgAARhEAADCKAACAUQQAAIwiAABg1P8C7lpAtLZysDgAAAAASUVO
+      RK5CYII=
     </thumbnail>
   </thumbnails>
 </workbook>
