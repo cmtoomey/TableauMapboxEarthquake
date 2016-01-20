@@ -238,6 +238,8 @@
           east = bounds.getEast();
           west = bounds.getWest();
           document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
+          //This will break Tableau Public!
+          //it will fire an AsyncFilter for every movement of the map - with Mapbox GL...this is a lot
           // for (var i = 0; i < length; i++) {
           //   worksheets[i].applyRangeFilterAsync(
           //     "Latitude", {
