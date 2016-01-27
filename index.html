@@ -209,7 +209,7 @@
 
     map.on('moveend', onMoveOne);
 
-    var onMoveTwo = function() {
+    var onMoveMove = function() {
       n = n + 1;
       bounds = map.getBounds();
       north = bounds.getNorth();
@@ -217,8 +217,8 @@
       east = bounds.getEast();
       west = bounds.getWest();
       document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
-      //This will break Tableau Public - it sends a filter update for every event as they happen. Not chained. 
-      //it will fire an AsyncFilter for every movement of the map - with Mapbox GL...this is a lot
+      // This will break Tableau Public - it sends a filter update for every event as they happen. Not chained.
+      // it will fire an AsyncFilter for every movement of the map - with Mapbox GL...this is a lot
       // for (var i = 0; i < length; i++) {
       //   worksheets[i].applyRangeFilterAsync(
       //     "Latitude", {
@@ -240,6 +240,18 @@
       south = bounds.getSouth();
       east = bounds.getEast();
       west = bounds.getWest();
+      for (var i = 0; i < length; i++) {
+        worksheets[i].applyRangeFilterAsync(
+          "Latitude", {
+            min: south,
+            max: north
+          }, tableau.FilterUpdateType.REPLACE);
+        worksheets[i].applyRangeFilterAsync(
+          "Longitude", {
+            min: west,
+            max: east
+          }, tableau.FilterUpdateType.REPLACE);
+      };
       document.getElementById('coordinates').innerHTML = 'Query Count: ' + n + '<br />North: ' + north + '<br />South: ' + south + '<br />East: ' + east + '<br />West:' + west;
     };
 
@@ -248,7 +260,8 @@
       if (type == 0) {
         //The idea here is that the default button is set to Regular, with the event listener done on mapload.
         //when you toggle back, this turns off Beast Mode and goes back to normal.
-        map.off('move', onMoveOne);
+        //map.off('move', onMoveMove);
+        map.off('moveend',onMoveEnd);
         workbook.changeParameterValueAsync("Sheet Toggle", 0);
         document.getElementById('toggle').style.color = '#000000';
         map.setPaintProperty('water', 'fill-color', '#8ccbf7');
@@ -257,13 +270,15 @@
         map.on('moveend', onMoveEnd);
       } else {
         //when you toggle the button, turn off the event listener, do some other stuff, and then turn on the next one.
-        map.off('moveEnd', onMoveEnd);
+        map.off('moveend', onMoveOne);
+        map.off('moveend', onMoveEnd);
         workbook.changeParameterValueAsync("Sheet Toggle", 1);
         document.getElementById('toggle').style.color = '#ffffff';
         map.setPaintProperty('water', 'fill-color', '#002244');
         map.setPaintProperty('background', 'background-color', '#69BE28');
         map.setPaintProperty('admin-3-4-boundaries', 'line-color', '#A5ACAF');
-        map.on('move', onMoveOne);
+        //map.on('move',onMoveMove);
+        map.on('moveend',onMoveEnd);
       }
     });
   </script>
